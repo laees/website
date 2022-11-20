@@ -290,8 +290,11 @@ describe('Users', () => {
             expect(res.body.avatarURL).toEqual(expect.stringContaining('https://avatars.cloudflare.steamstatic.com/'));
         });
 
-        it('should respond with the specified user with expanded profile when using an expand parameter', () =>
-            expandTest(`users/${user1.id}`, expects, 'profile'));
+        it('should respond with the specified user with expanded profile when using an expand parameter', async () => {
+            await expandTest(`users/${user1.id}`, expects, 'profile');
+            const res = await get(`users/${user1.id}`, 200, { expand: 'profile' });
+            console.log(JSON.stringify(res.body));
+        });
 
         it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
             const res = await get(`users/${user1.id}`, 200, { mapRank: map1.id });

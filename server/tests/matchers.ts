@@ -6,8 +6,8 @@ declare global {
     namespace jest {
         // eslint-disable-next-line unused-imports/no-unused-vars
         interface Matchers<R> {
-            toBeValidDto: (type: any) => CustomMatcherResult;
-            toBeValidPagedDto: (type: any) => CustomMatcherResult;
+            toBeValidDto: (type: any, allowEmpty?: boolean) => CustomMatcherResult;
+            toBeValidPagedDto: (type: any, allowEmpty?: boolean) => CustomMatcherResult;
         }
     }
 }
@@ -33,7 +33,7 @@ const formatValidationErrors = (errors: ValidationError[], depth = 1): string =>
         .join('\n');
 
 expect.extend({
-    toBeValidDto(received, type) {
+    toBeValidDto(received, type, allowEmpty = true) {
         // Use class-transformer to create an instance of the DTO type with the passed in data
         const instance = plainToInstance(type, received);
 
@@ -41,13 +41,23 @@ expect.extend({
         const errors = validateSync(instance, { forbidNonWhitelisted: true });
 
         const pass = errors.length === 0;
+        const wasEmpty = !allowEmpty && Object.keys(instance).length === 0;
 
-        if (pass) {
+        if (pass && !wasEmpty) {
             return {
                 message: () => `expected DTO data not to validate the ${type.name} DTO`,
                 pass: true
             };
         } else {
+            if (wasEmpty) {
+                return {
+                    message: () =>
+                        `expected DTO data ${JSON.stringify(received)} to validate ${
+                            type.name
+                        }, but it was the empty object.` + formatValidationErrors(errors),
+                    pass: false
+                };
+            }
             const plural = errors.length > 1;
             return {
                 message: () =>
@@ -59,7 +69,8 @@ expect.extend({
         }
     },
 
-    toBeValidPagedDto(received, type) {
+    // TODO: version of this with allowEmpty!!
+    toBeValidPagedDto(received, type, allowEmpty = true) {
         if (!received || !received.hasOwnProperty('response') || !Array.isArray(received.response)) {
             return {
                 message: () => `expected paged DTO with response array, data was invalid`,

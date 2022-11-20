@@ -1,10 +1,12 @@
 // noinspection DuplicatedCode
 
 import { PrismaService } from '@modules/repo/prisma.service';
-import { del, get, patch, post } from '../util/test-util';
+import {del, get, patch, post, put} from '../util/test-util';
 import { AuthService } from '@modules/auth/auth.service';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { UserDto } from '@common/dto/user/user.dto';
+import { XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
+
 
 describe('Admin', () => {
     let adminUser,
@@ -967,76 +969,51 @@ describe('Admin', () => {
     // 	});
     // });
     //
-    // describe('GET /api/v1/admin/xpsys', () => {
-    // 	it('should return the XP system variables', () => {
-    // 		return chai.request(server)
-    // 			.get('/api/v1/admin/xpsys')
-    // 			.set('Authorization', 'Bearer ' + adminAccessToken)
-    // 			.then(res => {
-    // 				expect(res).to.have.status(200);
-    // 			});
-    // 	});
-    // });
-    //
-    // describe('PUT /api/v1/admin/xpsys', () => {
-    // 	it('should update the XP system variables', () => {
-    // 		return chai.request(server)
-    // 			.put('/api/v1/admin/xpsys')
-    // 			.set('Authorization', 'Bearer ' + adminAccessToken)
-    // 			.send({
-    // 				rankXP: {
-    // 					top10: {
-    // 						WRPoints: 3500,
-    // 						rankPercentages: [
-    // 							1,
-    // 							.75,
-    // 							.68,
-    // 							.61,
-    // 							.57,
-    // 							.53,
-    // 							.505,
-    // 							.48,
-    // 							.455,
-    // 							.43,
-    // 						],
-    // 					},
-    // 					formula: {
-    // 						A: 50000,
-    // 						B: 49,
-    // 					},
-    // 					groups: {
-    // 						maxGroups: 4,
-    // 						groupScaleFactors: [
-    // 							1,
-    // 							1.5,
-    // 							2,
-    // 							2.5
-    // 						],
-    // 						groupExponents: [
-    // 							0.5,
-    // 							0.56,
-    // 							0.62,
-    // 							0.68
-    // 						],
-    // 						groupMinSizes: [
-    // 							10,
-    // 							45,
-    // 							125,
-    // 							250
-    // 						],
-    // 						groupPointPcts: [ // How much, of a % of WRPoints, does each group get
-    // 							0.2,
-    // 							0.13,
-    // 							0.07,
-    // 							0.03,
-    // 						],
-    // 					},
-    // 				},
-    // 				cosXP: {}
-    // 			})
-    // 			.then(res => {
-    // 				expect(res).to.have.status(204);
-    // 			});
-    // 	});
-    // });
+
+    describe('GET /api/v1/admin/xpsys', () => {
+        it('should return the XP system variables', async () => {
+            const res = await get('admin/xpsys', 200);
+
+            expect(res.body).toBeValidDto(XpSystemsDto, false);
+        });
+
+        it('should response with 200 for a moderator', async () => {
+            const res = await get('admin/xpsys', 200, {}, modUser);
+
+            expect(res.body).toBeValidDto(XpSystemsDto);
+        });
+
+        it('should response with 403 for a regular user', () => get('admin/xpsys', 403, {}, nonAdminAccessToken));
+
+        it('should response with 401 for with no auth token is provided', () => get('admin/xpsys', 403, {}, null));
+    });
+
+    describe('PUT /api/v1/admin/xpsys', () => {
+        it('should update the XP system variables', async () => {
+            const res = await put('/api/v1/admin/xpsys', 204, {
+                rankXP: {
+                    top10: {
+                        WRPoints: 3500,
+                        rankPercentages: [1, 0.75, 0.68, 0.61, 0.57, 0.53, 0.505, 0.48, 0.455, 0.43]
+                    },
+                    formula: {
+                        A: 50000,
+                        B: 49
+                    },
+                    groups: {
+                        maxGroups: 4,
+                        groupScaleFactors: [1, 1.5, 2, 2.5],
+                        groupExponents: [0.5, 0.56, 0.62, 0.68],
+                        groupMinSizes: [10, 45, 125, 250],
+                        groupPointPcts: [
+                            // How much, of a % of WRPoints, does each group get
+                            0.2, 0.13, 0.07, 0.03
+                        ]
+                    }
+                },
+                cosXP: {}
+            });
+            // todo: expects
+        });
+    });
 });

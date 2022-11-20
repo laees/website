@@ -1,6 +1,8 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { XpSystemsRepoService } from '../repo/xp-systems-repo.service';
 import { CosXpParams, RankXpGain, RankXpParams, XpParams } from './xp-systems.interface';
+import { DtoFactory } from '@lib/dto.lib';
+import {XpSystemsDto} from "@common/dto/xp-systems/xp-systems.dto";
 
 const DEFAULT_RANK_XP: RankXpParams = {
     top10: {
@@ -60,6 +62,13 @@ export class XpSystemsService implements OnModuleInit {
     private _rankXpParams: RankXpParams;
     private xpInLevels: number[];
     private xpForLevels: number[];
+
+    public get() {
+        return DtoFactory(XpSystemsDto, {
+            cosXP: this._cosXpParams,
+            rankXP: this._rankXpParams
+        });
+    }
 
     public get xpParams(): XpParams {
         return {

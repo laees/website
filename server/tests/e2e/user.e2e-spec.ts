@@ -394,7 +394,6 @@ describe('User', () => {
     });
     */
 
-    //TODO: YHER ARE BACKTICK STRINGS EVEREYWHERE WIOTHOUT THINGY VALUES, FIX
     describe('GET /api/v1/user/follow/{userID}', () => {
         it('should return relationships of the given and local user who follow each other', async () => {
             const res = await get(`user/follow/${user2.id}`, 200);

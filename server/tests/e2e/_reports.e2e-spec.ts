@@ -1,6 +1,6 @@
 // noinspection DuplicatedCode
 
-describe('reports', () => {
+/*describe('reports', () => {
     let adminAccessToken, adminGameAccessToken;
     const testUser = {
         id: 1,
@@ -97,3 +97,6 @@ describe('reports', () => {
         // });
     });
 });
+
+
+ */

@@ -29,7 +29,9 @@ import { MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
 import { MapsCtlGetAllQuery } from '@common/dto/query/map-queries.dto';
 import { ReportDto, UpdateReportDto } from '@common/dto/report/report.dto';
 import { Roles } from '@common/decorators/roles.decorator';
-import { Roles as RolesEnum } from '../../common/enums/user.enum';
+import { Roles as RolesEnum } from '@common/enums/user.enum';
+import { XpSystemsService } from '../xp-systems/xp-systems.service';
+import { XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 
 @ApiBearerAuth()
@@ -37,7 +39,7 @@ import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 @ApiTags('Admin')
 @Roles(RolesEnum.ADMIN)
 export class AdminController {
-    constructor(private readonly adminService: AdminService) {}
+    constructor(private readonly adminService: AdminService, private readonly xpSystems: XpSystemsService) {}
 
     @Post('/users')
     @ApiBody({
@@ -185,6 +187,14 @@ export class AdminController {
     @ApiNoContentResponse({ description: 'The report was updated successfully' })
     updateReport(@Param('reportID', ParseIntPipe) _reportID: number, @Body() _body: ReportDto) {
         return void 0;
+    }
+
+    @Get('/xpsys')
+    @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+    @ApiOperation({ summary: 'Retrives the current params used in the XP system' })
+    @ApiOkResponse({ type: XpSystemsDto, description: 'The current XP params' })
+    getXpSystems(): XpSystemsDto {
+        return this.xpSystems.get();
     }
 
     // TODO: XPSystem GET/PUT
